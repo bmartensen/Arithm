@@ -13,4 +13,4 @@ Please note that no plot is generated if the expression result over the defined 
 
 # Syntax
 
-See <a href="http://www.partow.net/programming/exprtk/index.html" target="_blank">http://www.partow.net/programming/exprtk/index.html</a> for available functions.
+Please refer to the <a href="http://www.partow.net/programming/exprtk/index.html" target="_blank">exprtk website</a> for available functions and expressions.
