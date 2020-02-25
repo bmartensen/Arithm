@@ -1,2 +1,8 @@
 # Arithm
-Arithmetic function parser GUI based on exprtk.
+A very basic arithmetic function parser GUI based on the versatile exprtk. If you're not fond of the usual OS calculators for your daily routine, this application can be used for calculations of common arithmetic expressions. It can also plot functions.
+
+![Screenshot](https://github.com/bmartensen/Arithm/blob/master/media/Arithm.png)
+
+# Variables
+
+The variables *a* (plot start), *b* (plot end) and *i* (plot samples) can be set during runtime and can be predefined via *Arithm.ini*. The variable *x* is reserved for evaluating the expression in a plot. Please note that no plot is generated if the expression result over the defined interval *\[a, b\]* is constant. In this case, only the constant value is displayed (calculator function).
