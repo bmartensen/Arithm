@@ -31,9 +31,9 @@ private:
     exprtk::parser<long double> m_Parser;
 
     long double m_X, m_A = -5.0, m_B = 5.0, m_I = 128.0;
+    long double m_F = 0.0, m_G = 0.0, m_H = 0.0;
 
 private:
-    QLineSeries *m_Series;
     QChart *m_Chart;
     QSettings *m_Settings;
 };
