@@ -23,7 +23,7 @@ HEADERS += \
 FORMS += \
     dialog.ui
 
-VERSION = 0.2
+VERSION = 0.3
 
 QMAKE_TARGET_COMPANY = "Martensening.com"
 QMAKE_TARGET_COPYRIGHT = "Martensening.com"

@@ -37,12 +37,13 @@ Dialog::Dialog(QWidget *parent)
 
     m_Chart->addSeries(new QLineSeries());
     m_Chart->createDefaultAxes();
+    m_Chart->legend()->hide();
 
     if(!m_Chart->axes(Qt::Horizontal).isEmpty())
-        m_Chart->axes(Qt::Horizontal).first()->setTitleText("X");
+        m_Chart->axes(Qt::Horizontal).first()->setTitleText("x");
 
     if(!m_Chart->axes(Qt::Vertical).isEmpty())
-        m_Chart->axes(Qt::Vertical).first()->setTitleText("Y");
+        m_Chart->axes(Qt::Vertical).first()->setTitleText("function(x)");
 
     m_Chart->setTheme(QChart::ChartTheme(m_Settings->value("theme", 2).toInt()));
     ui->chart->setFocusPolicy(Qt::NoFocus);
@@ -116,6 +117,9 @@ void Dialog::Calculate(std::string expression)
                     Hs->append(m_X, m_H);
             }
 
+            // show legend, it might be that more plots are displayed
+            m_Chart->legend()->show();
+
             if(Fs->points().count() > 0)
             {
                 if(isFs)
@@ -128,11 +132,16 @@ void Dialog::Calculate(std::string expression)
                     // lazy expression fallback, only use when g(x) and h(x) are not defined
                     if(Gs->points().count() == 0 && Hs->points().count() == 0)
                     {
-                        Fs->setName("expression(x)");
+                        Fs->setName("expression");
                         m_Chart->addSeries(Fs);
+
+                        // don't need to show legend with just one plot
+                        m_Chart->legend()->hide();
                     }
                     else
+                    {
                         delete Fs;
+                    }
                 }
             }
             else
@@ -156,14 +165,16 @@ void Dialog::Calculate(std::string expression)
 
             m_Chart->createDefaultAxes();
             if(!m_Chart->axes(Qt::Horizontal).isEmpty())
-                m_Chart->axes(Qt::Horizontal).first()->setTitleText("X");
+                m_Chart->axes(Qt::Horizontal).first()->setTitleText("x");
 
             if(!m_Chart->axes(Qt::Vertical).isEmpty())
-                m_Chart->axes(Qt::Vertical).first()->setTitleText("Y");
+                m_Chart->axes(Qt::Vertical).first()->setTitleText("function(x)");
 
             ui->output->setText(QString::fromUtf8("Results for %1 ≤ x ≤ %2").arg(double(m_A)).arg(double(m_B)));
             ui->output->setStyleSheet(g_styleHint);
             ui->output->setToolTip("");
+
+            ui->chart->update();
         }
         else
         {
