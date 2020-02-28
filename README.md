@@ -13,4 +13,8 @@ The functions *f*, *g* and *h* can be explicitely defined. Please note that no p
 
 # Syntax
 
-See <a href="https://github.com/bmartensen/Arithm/blob/master/exprtk" target="_blank">https://github.com/bmartensen/Arithm/blob/master/exprtk</a> for available functions and expressions.
+See https://github.com/bmartensen/Arithm/blob/master/exprtk for available functions and expressions.
+
+# License
+
+See https://github.com/bmartensen/Arithm/blob/master/LICENSE for details.
