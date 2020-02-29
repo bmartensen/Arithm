@@ -2,7 +2,7 @@
 A basic arithmetic function parser GUI based on the exprtk. If you're not fond of the usual OS calculators for your daily routine, this application can be used for calculations of common arithmetic expressions. It can also plot functions.
 
 <p align="center">
-  <img src="https://github.com/bmartensen/Arithm/blob/master/media/Arithm_Multiplot.png" alt="Screenshot">
+  <img src="https://github.com/bmartensen/Arithm/blob/master/media/Arithm.png" alt="Screenshot">
 </p>
 
 # Usage
