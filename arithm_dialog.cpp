@@ -81,8 +81,6 @@ bool ArithmDialog::Prepare(std::string expression)
 
     if(m_Parser.compile(expression, m_Expression))
     {
-        //arithm_double result = m_Expression.value();
-
         std::deque<symbol_t> symbol_list;
         m_Parser.dec().symbols(symbol_list);
 

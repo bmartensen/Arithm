@@ -9,7 +9,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Dialog; }
 QT_END_NAMESPACE
 
-// define project's accuracy for exprtk
+// some exprtk project settings
 typedef long double arithm_double;
 typedef exprtk::parser<arithm_double>::dependent_entity_collector::symbol_t symbol_t;
 
@@ -22,7 +22,6 @@ public:
     ~ArithmDialog();
 
     bool Prepare(std::string expression);
-
     void Calculate(std::string expression);
 
 private slots:

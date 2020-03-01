@@ -20,11 +20,11 @@ SOURCES += \
 HEADERS += \
     arithm_dialog.h \
     exprtk/exprtk.hpp \
-    
+
 FORMS += \
     arithm_dialog.ui \
 
-VERSION = 1.0
+VERSION = 1.0.1
 
 QMAKE_TARGET_COMPANY = "Martensening.com"
 QMAKE_TARGET_COPYRIGHT = "Martensening.com"
