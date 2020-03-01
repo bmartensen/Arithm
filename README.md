@@ -7,9 +7,9 @@ A basic arithmetic function parser GUI based on Arash Partow's *exprtk*. If you'
 
 # Usage
 
-Apart entering from arithmetic expressions, the variables *a* (plot start), *b* (plot end) and *i* (plot samples) can be set during runtime or can be defined via *Arithm.ini*. The variable *x* is reserved for evaluating the expressions for plotting.
+Apart entering from arithmetic expressions, the plot interval *\[a, b\]* can be set during runtime or it can be defined via *Arithm.ini*. The variable *x* is reserved for evaluating the expressions for plotting.
 
-The functions *f*, *g* and *h* can be explicitely defined. Please note that no plot is generated if the expression result is constant over the defined interval *\[a, b\]*. In this case, only the constant value is displayed (calculator function).
+The functions *f*, *g* and *h* can be explicitly defined. Please note that no plot will be displayed if neither functions nor the independent variable *x* is used. In this case, only a constant result value is displayed (calculator function).
 
 # Syntax
 
