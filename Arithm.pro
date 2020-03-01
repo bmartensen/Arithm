@@ -8,22 +8,23 @@ win32:QMAKE_CXXFLAGS += -bigobj
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
-INCLUDEPATH += $$PWD/exprtk
+INCLUDEPATH += \
+	$$PWD/exprtk \
 
 RC_ICONS = $$PWD/media/Arithm.ico
 
 SOURCES += \
+    arithm_dialog.cpp \
     main.cpp \
-    dialog.cpp
 
 HEADERS += \
-    dialog.h \
-    exprtk/exprtk.hpp
+    arithm_dialog.h \
+    exprtk/exprtk.hpp \
     
 FORMS += \
-    dialog.ui
+    arithm_dialog.ui \
 
-VERSION = 0.3
+VERSION = 1.0
 
 QMAKE_TARGET_COMPANY = "Martensening.com"
 QMAKE_TARGET_COPYRIGHT = "Martensening.com"
