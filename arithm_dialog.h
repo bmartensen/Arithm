@@ -9,8 +9,9 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Dialog; }
 QT_END_NAMESPACE
 
-// some exprtk project settings
+// exprtk project settings
 typedef long double arithm_double;
+typedef std::pair<arithm_double, arithm_double> arithm_pair;
 typedef exprtk::parser<arithm_double>::dependent_entity_collector::symbol_t symbol_t;
 
 class ArithmDialog : public QDialog
@@ -21,8 +22,18 @@ public:
     ArithmDialog(QWidget *parent = nullptr);
     ~ArithmDialog();
 
+private:
+    // calculation
     bool Prepare(std::string expression);
     void Calculate(std::string expression);
+
+    // clean-ups
+    void ResetSymbols();
+    void ResetPlot();
+
+    // convenience
+    void AddPair(QtCharts::QLineSeries *series, const arithm_double x, const arithm_double y, arithm_pair *minMax);
+    arithm_pair EvaluateRange(arithm_pair minMax);
 
 private slots:
     void on_input_textChanged();
@@ -42,7 +53,7 @@ private:
     arithm_double m_X, m_A = -6.0, m_B = 6.0;
 
     // plot user variables
-    arithm_double m_F = 0.0, m_G = 0.0, m_H = 0.0;
+    arithm_double m_F = std::nanl("1"), m_G = std::nanl("1"), m_H = std::nanl("1");
 
     bool m_isLazy, m_isF, m_isG, m_isH = false;
 
