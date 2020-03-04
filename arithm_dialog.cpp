@@ -14,15 +14,15 @@ ArithmDialog::ArithmDialog(QWidget *parent)
     ui->setupUi(this);
     setWindowFlags(Qt::Window);
 
-    ui->input->setFocus();
-    ui->input->setStyleSheet(g_styleActive);
+    // plot theme
+    m_ChartTheme = QChart::ChartTheme(m_Settings->value("theme", 2).toInt());
 
     // read default visualization parameters
     m_A = m_Settings->value("a", -6).toFloat();
     m_B = m_Settings->value("b", 6).toFloat();
     m_Samples = m_Settings->value("samples", 512).toInt();
 
-    // limit plot sample parameter
+    // limit plot sample parameter to reasonable values
     if(m_Samples < 2)
         m_Samples = 2;
     if(m_Samples > 16384)
@@ -43,9 +43,11 @@ ArithmDialog::ArithmDialog(QWidget *parent)
     m_Symbols.add_constants();
     m_Expression.register_symbol_table(m_Symbols);
 
-    ResetPlot();
+    // set focus to input so we can start right away
+    ui->input->setFocus();
+    ui->input->setStyleSheet(g_styleActive);
 
-    Calculate("");
+    Calculate();
 }
 
 ArithmDialog::~ArithmDialog()
@@ -58,7 +60,25 @@ ArithmDialog::~ArithmDialog()
     delete ui;
 }
 
-bool ArithmDialog::Prepare(std::string expression)
+void ArithmDialog::AddPair(QtCharts::QLineSeries *series, const arithm_double x, const arithm_double y, arithm_pair *minMax)
+{
+    // add point to plot
+    series->append(x, y);
+
+    // determine minimum
+    if(std::isnan(minMax->first))
+        minMax->first = y;
+    else
+        minMax->first = std::min(minMax->first, y);
+
+    // determine maximum
+    if(std::isnan(minMax->second))
+        minMax->second = y;
+    else
+        minMax->second = std::max(minMax->second, y);
+}
+
+bool ArithmDialog::Prepare()
 {
     // collect user variables (x, f, g, h, ...)
     m_Parser.dec().collect_variables() = true;
@@ -68,9 +88,9 @@ bool ArithmDialog::Prepare(std::string expression)
 
     bool isX = false;
 
-    if(m_Parser.compile(expression, m_Expression))
+    if(m_Parser.compile(ui->input->text().toStdString(), m_Expression))
     {
-        std::deque<symbol_t> symbol_list;
+        std::deque<arithm_symbol> symbol_list;
         m_Parser.dec().symbols(symbol_list);
 
         for (std::size_t i = 0; i < symbol_list.size(); ++i)
@@ -95,27 +115,9 @@ bool ArithmDialog::Prepare(std::string expression)
     return false;
 }
 
-void ArithmDialog::AddPair(QtCharts::QLineSeries *series, const arithm_double x, const arithm_double y, arithm_pair *minMax)
+void ArithmDialog::Calculate()
 {
-    // add point to plot
-    series->append(x, y);
-
-    // determine minimum
-    if(std::isnan(minMax->first))
-        minMax->first = y;
-    else
-        minMax->first = std::min(minMax->first, y);
-
-    // determine maximum
-    if(std::isnan(minMax->second))
-        minMax->second = y;
-    else
-        minMax->second = std::max(minMax->second, y);
-}
-
-void ArithmDialog::Calculate(std::string expression)
-{
-    if(Prepare(expression))
+    if(Prepare())
     {
         // reset symbols prior to expression evaluation
         ResetSymbols();
@@ -217,7 +219,7 @@ void ArithmDialog::Calculate(std::string expression)
             // re-enable display updates and implicitely call update()
             ui->chart->setUpdatesEnabled(true);
 
-            // display plot boundaries info [a, b]            
+            // display plot boundaries info [a, b]
             ui->output->setText(QString::fromUtf8("Results for %1 ≤ x ≤ %2").arg(double(m_A)).arg(double(m_B)));
             ui->output->setStyleSheet(g_styleHint);
             ui->output->setToolTip("");
@@ -317,7 +319,7 @@ void ArithmDialog::ResetPlot()
         m_Chart->axes(Qt::Vertical).first()->setRange(0.0, 1.0);
     }
 
-    m_Chart->setTheme(QChart::ChartTheme(m_Settings->value("theme", 2).toInt()));
+    m_Chart->setTheme(m_ChartTheme);
     ui->chart->setFocusPolicy(Qt::NoFocus);
 
     ui->chart->setChart(m_Chart);
@@ -329,5 +331,5 @@ void ArithmDialog::ResetPlot()
 
 void ArithmDialog::on_input_textChanged()
 {
-    Calculate(ui->input->text().toStdString());
+    Calculate();
 }

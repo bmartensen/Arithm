@@ -9,10 +9,10 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Dialog; }
 QT_END_NAMESPACE
 
-// exprtk project settings
+// exprtk settings
 typedef long double arithm_double;
 typedef std::pair<arithm_double, arithm_double> arithm_pair;
-typedef exprtk::parser<arithm_double>::dependent_entity_collector::symbol_t symbol_t;
+typedef exprtk::parser<arithm_double>::dependent_entity_collector::symbol_t arithm_symbol;
 
 class ArithmDialog : public QDialog
 {
@@ -24,8 +24,8 @@ public:
 
 private:
     // calculation
-    bool Prepare(std::string expression);
-    void Calculate(std::string expression);
+    bool Prepare();
+    void Calculate();
 
     // clean-ups
     void ResetSymbols();
@@ -45,6 +45,9 @@ private:
     exprtk::symbol_table<arithm_double> m_Symbols;
     exprtk::expression<arithm_double> m_Expression;
     exprtk::parser<arithm_double> m_Parser;
+
+    // plot theme
+    QChart::ChartTheme m_ChartTheme = QChart::ChartThemeDark;
 
     // plot sample points
     int m_Samples = 512;
