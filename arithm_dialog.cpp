@@ -1,11 +1,7 @@
 #include "arithm_dialog.h"
 #include "ui_arithm_dialog.h"
 
-#include <QMessageBox>
-
-// default styles
-const QString g_styleActive = "QLineEdit { padding: 5px; border: 0px solid gray; border-radius: 4px; color: #000; }";
-const QString g_styleHint = "QLineEdit { padding: 5px; border: 0px solid gray; border-radius: 4px; color: #ccc; }";
+#include "settings.h"
 
 ArithmDialog::ArithmDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::Dialog), m_Chart(new QChart()),
@@ -15,12 +11,12 @@ ArithmDialog::ArithmDialog(QWidget *parent)
     setWindowFlags(Qt::Window);
 
     // plot theme
-    m_ChartTheme = QChart::ChartTheme(m_Settings->value("theme", 2).toInt());
+    m_ChartTheme = QChart::ChartTheme(m_Settings->value(KEY_PLOT_THEME, 2).toInt());
 
     // read default visualization parameters
-    m_A = m_Settings->value("a", -6).toFloat();
-    m_B = m_Settings->value("b", 6).toFloat();
-    m_Samples = m_Settings->value("samples", 512).toInt();
+    m_A = m_Settings->value(KEY_PLOT_X_MIN, -6).toFloat();
+    m_B = m_Settings->value(KEY_PLOT_X_MAX, 6).toFloat();
+    m_Samples = m_Settings->value(KEY_PLOT_SAMPLES, 512).toInt();
 
     // limit plot sample parameter to reasonable values
     if(m_Samples < 2)
@@ -45,7 +41,13 @@ ArithmDialog::ArithmDialog(QWidget *parent)
 
     // set focus to input so we can start right away
     ui->input->setFocus();
-    ui->input->setStyleSheet(g_styleActive);
+
+    // Load most recent expression
+    if(m_Settings->value(KEY_SETTINGS_SAVE_HISTORY, 0).toInt() != 0)
+    {
+        ui->input->addItem(QString(m_Settings->value(QString(KEY_HISTORY_RECENT), "").toString()));
+        ui->input->lineEdit()->setText(QString(""));
+    }
 
     Calculate();
 }
@@ -53,6 +55,13 @@ ArithmDialog::ArithmDialog(QWidget *parent)
 ArithmDialog::~ArithmDialog()
 {
     m_Chart->removeAllSeries();
+
+    // Save most recent expression
+    if(m_Settings->value(KEY_SETTINGS_SAVE_HISTORY, 0).toInt() != 0 &&
+            !ui->input->lineEdit()->text().isEmpty())
+    {
+        m_Settings->setValue(QString(KEY_HISTORY_RECENT), ui->input->lineEdit()->text());
+    }
 
     delete m_Chart;
     delete m_Settings;
@@ -88,7 +97,7 @@ bool ArithmDialog::Prepare()
 
     bool isX = false;
 
-    if(m_Parser.compile(ui->input->text().toStdString(), m_Expression))
+    if(m_Parser.compile(ui->input->lineEdit()->text().toStdString(), m_Expression))
     {
         std::deque<arithm_symbol> symbol_list;
         m_Parser.dec().symbols(symbol_list);
@@ -221,14 +230,14 @@ void ArithmDialog::Calculate()
 
             // display plot boundaries info [a, b]
             ui->output->setText(QString::fromUtf8("Results for %1 ≤ x ≤ %2").arg(double(m_A)).arg(double(m_B)));
-            ui->output->setStyleSheet(g_styleHint);
+            ui->output->setStyleSheet(STYLE_HINT);
             ui->output->setToolTip("");
         }
         else
         {
             // results only
             ui->output->setText(QString::number(m_Expression.value(), 'G', 12));
-            ui->output->setStyleSheet(g_styleActive);
+            ui->output->setStyleSheet(STYLE_ACTIVE);
             ui->output->setToolTip("");
 
             ResetPlot();
@@ -238,7 +247,7 @@ void ArithmDialog::Calculate()
     {
         // invalid expression
         ui->output->setText(tr("Please enter a valid expression"));
-        ui->output->setStyleSheet(g_styleHint);
+        ui->output->setStyleSheet(STYLE_HINT);
         ui->output->setToolTip(QString::fromStdString(m_Parser.error()));
 
         ResetPlot();
@@ -329,7 +338,7 @@ void ArithmDialog::ResetPlot()
     ui->chart->setUpdatesEnabled(true);
 }
 
-void ArithmDialog::on_input_textChanged()
+void ArithmDialog::on_input_editTextChanged(const QString& /* arg1 */)
 {
     Calculate();
 }

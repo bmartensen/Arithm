@@ -19,7 +19,8 @@ SOURCES += \
 
 HEADERS += \
     arithm_dialog.h \
-    exprtk/exprtk.hpp \
+    exprtk/exprtk.hpp \ \
+    settings.h
 
 FORMS += \
     arithm_dialog.ui \

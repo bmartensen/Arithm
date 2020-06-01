@@ -22,6 +22,9 @@ public:
     ArithmDialog(QWidget *parent = nullptr);
     ~ArithmDialog();
 
+private slots:
+    void on_input_editTextChanged(const QString &arg1);
+
 private:
     // calculation
     bool Prepare();
@@ -34,9 +37,6 @@ private:
     // convenience
     void AddPair(QtCharts::QLineSeries *series, const arithm_double x, const arithm_double y, arithm_pair *minMax);
     arithm_pair EvaluateRange(arithm_pair minMax);
-
-private slots:
-    void on_input_textChanged();
 
 private:
     Ui::Dialog *ui;

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>420</height>
+    <width>612</width>
+    <height>439</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -41,12 +41,58 @@
         </spacer>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="input">
+        <widget class="QComboBox" name="input">
          <property name="font">
           <font>
+           <family>MS Shell Dlg 2</family>
            <pointsize>14</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
            <stylestrategy>PreferAntialias</stylestrategy>
           </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QComboBox {
+	padding: 5px;
+	border: 0px solid gray;
+	border-radius: 4px;
+	color: #000;
+	font: 14pt &quot;MS Shell Dlg 2&quot;;
+}
+
+QComboBox:!editable, QComboBox::drop-down:editable {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                 stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
+                                 stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
+}
+
+/* QComboBox gets the &quot;on&quot; state when the popup is open */
+QComboBox:!editable:on, QComboBox::drop-down:editable:on {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,
+                                stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
+}
+
+QComboBox:on { /* shift the text when the popup opens */
+    padding-top: 3px;
+    padding-left: 4px;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+
+    border-left-width: 1px;
+    border-left-color: darkgray;
+    border-left-style: solid; /* just a single line */
+    border-top-right-radius: 3px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 3px;
+}</string>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -142,7 +188,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>input</tabstop>
   <tabstop>output</tabstop>
   <tabstop>chart</tabstop>
  </tabstops>
