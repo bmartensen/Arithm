@@ -89,7 +89,17 @@ QComboBox::drop-down {
     border-left-style: solid; /* just a single line */
     border-top-right-radius: 3px; /* same radius as the QComboBox */
     border-bottom-right-radius: 3px;
-}</string>
+}
+
+QComboBox::down-arrow {
+	image: url(&quot;:/media/Down_Arrow.png&quot;);
+}
+
+QComboBox::down-arrow:on {
+    top: 1px;
+    left: 1px;
+}
+</string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -173,6 +183,9 @@ QComboBox::drop-down {
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
        </property>
       </widget>
      </item>

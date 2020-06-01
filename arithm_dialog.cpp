@@ -1,8 +1,6 @@
 #include "arithm_dialog.h"
 #include "ui_arithm_dialog.h"
 
-#include "settings.h"
-
 ArithmDialog::ArithmDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::Dialog), m_Chart(new QChart()),
       m_Settings(new QSettings("Arithm.ini", QSettings::IniFormat))
@@ -10,45 +8,40 @@ ArithmDialog::ArithmDialog(QWidget *parent)
     ui->setupUi(this);
     setWindowFlags(Qt::Window);
 
-    // plot theme
-    m_ChartTheme = QChart::ChartTheme(m_Settings->value(KEY_PLOT_THEME, 2).toInt());
+    // Plot theme
+    m_ChartTheme = QChart::ChartTheme(m_Settings->value(PLOT_THEME_KEY, 2).toInt());
 
-    // read default visualization parameters
-    m_A = m_Settings->value(KEY_PLOT_X_MIN, -6).toFloat();
-    m_B = m_Settings->value(KEY_PLOT_X_MAX, 6).toFloat();
-    m_Samples = m_Settings->value(KEY_PLOT_SAMPLES, 512).toInt();
+    // Read default visualization parameters
+    m_Samples = m_Settings->value(PLOT_SAMPLES_KEY, 512).toInt();
+    m_HistoryCount = m_Settings->value(HISTORY_COUNT_KEY, 10).toInt();
 
-    // limit plot sample parameter to reasonable values
-    if(m_Samples < 2)
-        m_Samples = 2;
-    if(m_Samples > 16384)
-        m_Samples = 16384;
+    ResetSymbols();
 
-    // independent variable
+    // Limit plot sample parameter to reasonable values
+    if(m_Samples < PLOT_SAMPLES_MIN)
+        m_Samples = PLOT_SAMPLES_MIN;
+    if(m_Samples > PLOT_SAMPLES_MAX)
+        m_Samples = PLOT_SAMPLES_MAX;
+
+    // Independent variable
     m_Symbols.add_variable("x", m_X);
 
-    // dependent variables
+    // Dependent variables
     m_Symbols.add_variable("f", m_F);
     m_Symbols.add_variable("g", m_G);
     m_Symbols.add_variable("h", m_H);
 
-    // constraints
-    m_Symbols.add_variable("a", m_A);
-    m_Symbols.add_variable("b", m_B);
+    // Constraints
+    m_Symbols.add_variable("x_min", m_X_Min);
+    m_Symbols.add_variable("x_max", m_X_Max);
 
     m_Symbols.add_constants();
     m_Expression.register_symbol_table(m_Symbols);
 
-    // set focus to input so we can start right away
+    // Set focus to input so we can start right away
     ui->input->setFocus();
 
-    // Load most recent expression
-    if(m_Settings->value(KEY_SETTINGS_SAVE_HISTORY, 0).toInt() != 0)
-    {
-        ui->input->addItem(QString(m_Settings->value(QString(KEY_HISTORY_RECENT), "").toString()));
-        ui->input->lineEdit()->setText(QString(""));
-    }
-
+    LoadHistory();
     Calculate();
 }
 
@@ -56,12 +49,7 @@ ArithmDialog::~ArithmDialog()
 {
     m_Chart->removeAllSeries();
 
-    // Save most recent expression
-    if(m_Settings->value(KEY_SETTINGS_SAVE_HISTORY, 0).toInt() != 0 &&
-            !ui->input->lineEdit()->text().isEmpty())
-    {
-        m_Settings->setValue(QString(KEY_HISTORY_RECENT), ui->input->lineEdit()->text());
-    }
+    SaveHistory();
 
     delete m_Chart;
     delete m_Settings;
@@ -69,18 +57,72 @@ ArithmDialog::~ArithmDialog()
     delete ui;
 }
 
+void ArithmDialog::LoadHistory()
+{
+    m_Settings->sync();
+
+    ui->input->clear();
+    if(m_Settings->value(HISTORY_SAVE_KEY, 0).toInt() != 0)
+    {
+        for (int i = 0; i < m_HistoryCount; i++)
+        {
+            QString item = QString(m_Settings->value(QString(HISTORY_ENTRY_KEY) + QString::number(i), "").toString());
+            if(!item.isEmpty())
+            {
+                ui->input->addItem(item);
+            }
+        }
+    }
+
+    ui->input->lineEdit()->clear();
+}
+
+void ArithmDialog::SaveHistory()
+{
+    m_Settings->sync();
+
+    if(m_Settings->value(HISTORY_SAVE_KEY, 0).toInt() != 0 &&
+            !ui->input->lineEdit()->text().isEmpty())
+    {
+        // Allow multiple instances without losing history entries
+        QString currentEntry = ui->input->lineEdit()->text();
+        LoadHistory();
+
+        bool bFound = false;
+        for (int i = 0; i < m_HistoryCount; i++)
+        {
+            if(ui->input->itemText(i) == currentEntry)
+                bFound = true;
+        }
+
+        if (bFound == false)
+        {
+            m_Settings->setValue(QString(HISTORY_ENTRY_KEY + QString::number(0)), currentEntry);
+
+            // Remaining KEY_HISTORY_COUNT-1 items (last item will be discarded)
+            for(int i = 0; i < m_HistoryCount-1; i++)
+            {
+                QString item = ui->input->itemText(i);
+                if(!item.isEmpty())
+                {
+                    m_Settings->setValue(QString(HISTORY_ENTRY_KEY + QString::number(i+1)), item);
+                }
+            }
+        }
+    }
+
+    m_Settings->sync();
+}
+
 void ArithmDialog::AddPair(QtCharts::QLineSeries *series, const arithm_double x, const arithm_double y, arithm_pair *minMax)
 {
-    // add point to plot
     series->append(x, y);
 
-    // determine minimum
     if(std::isnan(minMax->first))
         minMax->first = y;
     else
         minMax->first = std::min(minMax->first, y);
 
-    // determine maximum
     if(std::isnan(minMax->second))
         minMax->second = y;
     else
@@ -89,10 +131,10 @@ void ArithmDialog::AddPair(QtCharts::QLineSeries *series, const arithm_double x,
 
 bool ArithmDialog::Prepare()
 {
-    // collect user variables (x, f, g, h, ...)
+    // Collect user variables (x, f, g, h, ...)
     m_Parser.dec().collect_variables() = true;
 
-    // set all variables to not detected
+    // Set all variables to not detected
     m_isLazy = m_isF = m_isG = m_isH = false;
 
     bool isX = false;
@@ -106,8 +148,9 @@ bool ArithmDialog::Prepare()
         {
             QString found = QString::fromStdString(symbol_list[i].first);
 
-            // evaluate relevant user variables
+            // Evaluate relevant user variables
             if(found == "x") isX = true;
+
             if(found == "f") m_isF = true;
             if(found == "g") m_isG = true;
             if(found == "h") m_isH = true;
@@ -116,11 +159,9 @@ bool ArithmDialog::Prepare()
         if(isX && !m_isF && !m_isG && !m_isH)
             m_isLazy = true;
 
-        // parser compile ok
         return true;
     }
 
-    // parser compile error
     return false;
 }
 
@@ -128,29 +169,28 @@ void ArithmDialog::Calculate()
 {
     if(Prepare())
     {
-        // reset symbols prior to expression evaluation
+        // Reset symbols prior to expression evaluation
         ResetSymbols();
 
-        // evaluate expression with default symbols
+        // Evaluate expression with default symbols
         arithm_double result = m_Expression.value();
 
         if(m_isLazy || m_isF || m_isG || m_isH)
         {
-            // temporarily disable updates
             ui->chart->setUpdatesEnabled(false);
 
-            // track min/max for plot range settings
+            // Track min/max for plot range settings
             arithm_pair minMax(std::nanl("1"), std::nanl("1"));
 
             QLineSeries *Fs = new QLineSeries();
             QLineSeries *Gs = new QLineSeries();
             QLineSeries *Hs = new QLineSeries();
 
-            // fixed horizontal range (we don't want a, b to be dependent on x)
-            arithm_double a = m_A;
-            arithm_double b = m_B;
+            // Fixed horizontal range (we don't want x_min, x_max to be dependent on x)
+            arithm_double a = m_X_Min;
+            arithm_double b = m_X_Max;
 
-            // perform calculations
+            // Perform calculations
             for(int i = 0; i < m_Samples; i++)
             {
                 m_X = a + i * (b - a) / (m_Samples - 1);
@@ -172,11 +212,11 @@ void ArithmDialog::Calculate()
                     AddPair(Fs, m_X, result, &minMax);
             }
 
-            // remove previous plots
+            // Remove previous plots
             m_Chart->removeAllSeries();
             m_Chart->legend()->show();
 
-            // add proper or lazy line series
+            // Add proper or lazy line series
             if(m_isF || m_isLazy)
             {
                 if(m_isLazy)
@@ -207,13 +247,13 @@ void ArithmDialog::Calculate()
             else
                 delete Hs;
 
-            // plot display settings
+            // Plot display settings
             m_Chart->createDefaultAxes();
 
             if(!m_Chart->axes(Qt::Horizontal).isEmpty())
             {
                 m_Chart->axes(Qt::Horizontal).first()->setTitleText("x");
-                m_Chart->axes(Qt::Horizontal).first()->setRange(double(m_A), double(m_B));
+                m_Chart->axes(Qt::Horizontal).first()->setRange(double(m_X_Min), double(m_X_Max));
             }
 
             if(!m_Chart->axes(Qt::Vertical).isEmpty())
@@ -225,17 +265,16 @@ void ArithmDialog::Calculate()
                 m_Chart->axes(Qt::Vertical).first()->setRange(double(minMax.first), double(minMax.second));
             }
 
-            // re-enable display updates and implicitely call update()
             ui->chart->setUpdatesEnabled(true);
 
-            // display plot boundaries info [a, b]
-            ui->output->setText(QString::fromUtf8("Results for %1 ≤ x ≤ %2").arg(double(m_A)).arg(double(m_B)));
+            // Display plot boundaries info [x_min, x_max]
+            ui->output->setText(QString::fromUtf8("Results for %1 ≤ x ≤ %2").arg(double(m_X_Min)).arg(double(m_X_Max)));
             ui->output->setStyleSheet(STYLE_HINT);
             ui->output->setToolTip("");
         }
         else
         {
-            // results only
+            // Display results only
             ui->output->setText(QString::number(m_Expression.value(), 'G', 12));
             ui->output->setStyleSheet(STYLE_ACTIVE);
             ui->output->setToolTip("");
@@ -245,7 +284,7 @@ void ArithmDialog::Calculate()
     }
     else
     {
-        // invalid expression
+        // Invalid expression
         ui->output->setText(tr("Please enter a valid expression"));
         ui->output->setStyleSheet(STYLE_HINT);
         ui->output->setToolTip(QString::fromStdString(m_Parser.error()));
@@ -260,20 +299,18 @@ arithm_pair ArithmDialog::EvaluateRange(arithm_pair minMax)
     arithm_double delta = minMax.second - minMax.first;
     arithm_double factor = 1.0;
 
-    // restrict plotting of functions to available rounding ranges [1µ, 1M]
-    // plot smaller ranges as constants and indicate this by vertical scale
+    // Restrict plotting of functions to available rounding ranges [1µ, 1M]
+    // Plot smaller ranges as constants and indicate this by vertical scale
     if(delta < 0.000001)
     {
-        // make some room
         result.first -= 0.5;
         result.second += 0.5;
 
-        // recalculate delta
         delta = result.second - result.first;
     }
     else
     {
-        // "the manufactured rounding table"
+        // "The manufactured rounding table"
         if(delta < 0.00005) factor = 0.000001; // 1µ
         if(delta >= 0.00005 && delta < 0.0005) factor = 0.00001;
         if(delta >= 0.0005 && delta < 0.005) factor = 0.0001;
@@ -289,7 +326,7 @@ arithm_pair ArithmDialog::EvaluateRange(arithm_pair minMax)
         if(delta >= 5000000.0) factor = 1000000.0; // 1M
     }
 
-    // execute rounding (factor = 1.0 for small deltas)
+    // Execute rounding (factor = 1.0 for small deltas)
     result.first = std::floorl(result.first / factor) * factor;
     result.second = std::ceill(result.second / factor) * factor;
 
@@ -302,11 +339,14 @@ void ArithmDialog::ResetSymbols()
     m_G = std::nanl("1");
     m_H = std::nanl("1");
     m_X = std::nanl("1");
+
+    // Always use default settings for x_min, x_max unless specified in current expression
+    m_X_Min = m_Settings->value(PLOT_X_MIN_KEY, PLOT_X_MIN_DEFAULT).toFloat();
+    m_X_Max = m_Settings->value(PLOT_X_MAX_KEY, PLOT_X_MAX_DEFAULT).toFloat();
 }
 
 void ArithmDialog::ResetPlot()
 {
-    // temporarily disable display updates
     ui->chart->setUpdatesEnabled(false);
 
     m_Chart->removeAllSeries();
@@ -319,7 +359,7 @@ void ArithmDialog::ResetPlot()
     if(!m_Chart->axes(Qt::Horizontal).isEmpty())
     {
         m_Chart->axes(Qt::Horizontal).first()->setTitleText("x");
-        m_Chart->axes(Qt::Horizontal).first()->setRange(double(m_A), double(m_B));
+        m_Chart->axes(Qt::Horizontal).first()->setRange(double(m_X_Min), double(m_X_Max));
     }
 
     if(!m_Chart->axes(Qt::Vertical).isEmpty())
@@ -334,7 +374,6 @@ void ArithmDialog::ResetPlot()
     ui->chart->setChart(m_Chart);
     ui->chart->setRenderHint(QPainter::Antialiasing);
 
-    // re-enable display updates and implicitely call update()
     ui->chart->setUpdatesEnabled(true);
 }
 

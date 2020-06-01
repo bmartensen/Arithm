@@ -4,12 +4,13 @@
 #include <QtCharts>
 
 #include "exprtk.hpp"
+#include "settings.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Dialog; }
 QT_END_NAMESPACE
 
-// exprtk settings
+// Exprtk
 typedef long double arithm_double;
 typedef std::pair<arithm_double, arithm_double> arithm_pair;
 typedef exprtk::parser<arithm_double>::dependent_entity_collector::symbol_t arithm_symbol;
@@ -26,15 +27,15 @@ private slots:
     void on_input_editTextChanged(const QString &arg1);
 
 private:
-    // calculation
     bool Prepare();
     void Calculate();
 
-    // clean-ups
     void ResetSymbols();
     void ResetPlot();
 
-    // convenience
+    void LoadHistory();
+    void SaveHistory();
+
     void AddPair(QtCharts::QLineSeries *series, const arithm_double x, const arithm_double y, arithm_pair *minMax);
     arithm_pair EvaluateRange(arithm_pair minMax);
 
@@ -46,18 +47,16 @@ private:
     exprtk::expression<arithm_double> m_Expression;
     exprtk::parser<arithm_double> m_Parser;
 
-    // plot theme
-    QChart::ChartTheme m_ChartTheme = QChart::ChartThemeDark;
+    QChart::ChartTheme m_ChartTheme = PLOT_THEME_DEFAULT;
 
-    // plot sample points
-    int m_Samples = 512;
+    int m_Samples = PLOT_SAMPLES_DEFAULT;
+    int m_HistoryCount = HISTORY_COUNT_DEFAULT;
 
-    // plot interval
-    arithm_double m_X, m_A = -6.0, m_B = 6.0;
+    arithm_double m_X;
+    arithm_double m_X_Min = PLOT_X_MIN_DEFAULT;
+    arithm_double m_X_Max = PLOT_X_MAX_DEFAULT;
 
-    // plot user variables
     arithm_double m_F = std::nanl("1"), m_G = std::nanl("1"), m_H = std::nanl("1");
-
     bool m_isLazy, m_isF, m_isG, m_isH = false;
 
 private:

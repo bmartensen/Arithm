@@ -7,9 +7,11 @@ A basic arithmetic function parser GUI based on Arash Partow's *exprtk*. If you'
 
 # Usage
 
-Apart from entering arithmetic expressions, the plot interval *\[a, b\]* can be set during runtime or it can be defined via *Arithm.ini*. The variable *x* is reserved for evaluating the expressions for plotting.
+Apart from entering arithmetic expressions, the plot interval *\[x_min, x_max\]* can be set during runtime or it can be defined via *Arithm.ini*. The variable *x* is reserved for evaluating the expressions for plotting.
 
 The user functions *f*, *g* and *h* can be explicitly defined. Please note that no plot will be displayed if neither user functions nor variables are used. In this case, only a constant result value is displayed (calculator function).
+
+The recent expression is automatically saved on application exit and is available via selection on the next application start. This feature can be configured and turned on/off via keys in *Arithm.ini*.
 
 # Syntax
 
