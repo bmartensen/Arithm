@@ -9,11 +9,11 @@ ArithmDialog::ArithmDialog(QWidget *parent)
     setWindowFlags(Qt::Window);
 
     // Plot theme
-    m_ChartTheme = QChart::ChartTheme(m_Settings->value(PLOT_THEME_KEY, 2).toInt());
+    m_ChartTheme = QChart::ChartTheme(m_Settings->value(PLOT_THEME_KEY, PLOT_THEME_DEFAULT).toInt());
 
     // Read default visualization parameters
-    m_Samples = m_Settings->value(PLOT_SAMPLES_KEY, 512).toInt();
-    m_HistoryCount = m_Settings->value(HISTORY_COUNT_KEY, 10).toInt();
+    m_Samples = m_Settings->value(PLOT_SAMPLES_KEY, PLOT_SAMPLES_DEFAULT).toInt();
+    m_HistoryCount = m_Settings->value(HISTORY_COUNT_KEY, HISTORY_COUNT_DEFAULT).toInt();
 
     ResetSymbols();
 
@@ -62,7 +62,7 @@ void ArithmDialog::LoadHistory()
     m_Settings->sync();
 
     ui->input->clear();
-    if(m_Settings->value(HISTORY_SAVE_KEY, 0).toInt() != 0)
+    if(m_Settings->value(HISTORY_SAVE_KEY, HISTORY_SAVE_DEFAULT).toInt() != 0)
     {
         for (int i = 0; i < m_HistoryCount; i++)
         {
@@ -81,7 +81,7 @@ void ArithmDialog::SaveHistory()
 {
     m_Settings->sync();
 
-    if(m_Settings->value(HISTORY_SAVE_KEY, 0).toInt() != 0 &&
+    if(m_Settings->value(HISTORY_SAVE_KEY, HISTORY_SAVE_DEFAULT).toInt() != 0 &&
             !ui->input->lineEdit()->text().isEmpty())
     {
         // Allow multiple instances without losing history entries
