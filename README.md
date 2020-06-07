@@ -11,7 +11,7 @@ Apart from entering arithmetic expressions, the plot interval *\[x_min, x_max\]*
 
 The user functions *f*, *g* and *h* can be explicitly defined. Please note that no plot will be displayed if neither user functions nor variables are used. In this case, only a constant result value is displayed (calculator function).
 
-The recent expression is automatically saved on application exit and is available via selection on the next application start. This feature can be configured and turned on/off via keys in *Arithm.ini*.
+The recent expression is automatically saved on application exit and is available via selection on the next application start. This feature can be configured and turned on/off via settings in *Arithm.ini*.
 
 # Syntax
 
