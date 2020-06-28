@@ -53,10 +53,15 @@ private:
     int m_HistoryCount = HISTORY_COUNT_DEFAULT;
 
     arithm_double m_X;
+
     arithm_double m_X_Min = PLOT_X_MIN_DEFAULT;
     arithm_double m_X_Max = PLOT_X_MAX_DEFAULT;
 
+    arithm_double m_Y_Min = std::nanl("1");
+    arithm_double m_Y_Max = std::nanl("1");
+
     arithm_double m_F = std::nanl("1"), m_G = std::nanl("1"), m_H = std::nanl("1");
+
     bool m_isLazy, m_isF, m_isG, m_isH = false;
 
 private:

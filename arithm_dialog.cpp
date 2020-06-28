@@ -35,6 +35,9 @@ ArithmDialog::ArithmDialog(QWidget *parent)
     m_Symbols.add_variable("x_min", m_X_Min);
     m_Symbols.add_variable("x_max", m_X_Max);
 
+    m_Symbols.add_variable("y_min", m_Y_Min);
+    m_Symbols.add_variable("y_max", m_Y_Max);
+
     m_Symbols.add_constants();
     m_Expression.register_symbol_table(m_Symbols);
 
@@ -136,7 +139,6 @@ bool ArithmDialog::Prepare()
 
     // Set all variables to not detected
     m_isLazy = m_isF = m_isG = m_isH = false;
-
     bool isX = false;
 
     if(m_Parser.compile(ui->input->lineEdit()->text().toStdString(), m_Expression))
@@ -260,9 +262,10 @@ void ArithmDialog::Calculate()
             {
                 m_Chart->axes(Qt::Vertical).first()->setTitleText("function(x)");
 
-                // Re-evaluate plot range
                 minMax = EvaluateRange(minMax);
-                m_Chart->axes(Qt::Vertical).first()->setRange(double(minMax.first), double(minMax.second));
+                m_Chart->axes(Qt::Vertical).first()->setRange(
+                            std::isnan(m_Y_Min) ? double(minMax.first) : double(m_Y_Min),
+                            std::isnan(m_Y_Max) ? double(minMax.second): double(m_Y_Max));
             }
 
             ui->chart->setUpdatesEnabled(true);
@@ -339,6 +342,10 @@ void ArithmDialog::ResetSymbols()
     m_G = std::nanl("1");
     m_H = std::nanl("1");
     m_X = std::nanl("1");
+
+    // Always use default scaling for y_min, x_max unless specified in current expression
+    m_Y_Min = std::nanl("1");
+    m_Y_Max = std::nanl("1");
 
     // Always use default settings for x_min, x_max unless specified in current expression
     m_X_Min = m_Settings->value(PLOT_X_MIN_KEY, PLOT_X_MIN_DEFAULT).toFloat();
