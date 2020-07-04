@@ -28,9 +28,9 @@ private slots:
 
 private:
     bool Prepare();
-    void Calculate();
+    void Calculate(bool resetZoom = false);
 
-    void ResetSymbols();
+    void ResetSymbols(bool resetZoom = false);
     void ResetPlot();
 
     void LoadHistory();
@@ -38,6 +38,9 @@ private:
 
     void AddPair(QtCharts::QLineSeries *series, const arithm_double x, const arithm_double y, arithm_pair *minMax);
     arithm_pair EvaluateRange(arithm_pair minMax);
+
+protected:
+    void wheelEvent( QWheelEvent * event );
 
 private:
     Ui::Dialog *ui;

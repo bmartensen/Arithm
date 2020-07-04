@@ -22,8 +22,10 @@
 #define PLOT_X_MAX_KEY          "Plot/X_Max"
 #define PLOT_X_MAX_DEFAULT      6
 
+#define PLOT_ZOOM_FACTOR        24.0
+
 #define PLOT_SAMPLES_KEY        "Plot/Samples"
-#define PLOT_SAMPLES_DEFAULT    512
+#define PLOT_SAMPLES_DEFAULT    2048
 #define PLOT_SAMPLES_MIN        2
 #define PLOT_SAMPLES_MAX        16384
 

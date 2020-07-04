@@ -60,6 +60,24 @@ ArithmDialog::~ArithmDialog()
     delete ui;
 }
 
+void ArithmDialog::wheelEvent(QWheelEvent *event)
+{
+    arithm_double delta = (m_X_Max - m_X_Min) / PLOT_ZOOM_FACTOR;
+
+    if(event->delta() < 0)
+    {
+        m_X_Min -= delta;
+        m_X_Max += delta;
+    }
+    else
+    {
+        m_X_Min += delta;
+        m_X_Max -= delta;
+    }
+
+    Calculate(false);
+}
+
 void ArithmDialog::LoadHistory()
 {
     m_Settings->sync();
@@ -167,12 +185,12 @@ bool ArithmDialog::Prepare()
     return false;
 }
 
-void ArithmDialog::Calculate()
+void ArithmDialog::Calculate(bool resetZoom)
 {
     if(Prepare())
     {
         // Reset symbols prior to expression evaluation
-        ResetSymbols();
+        ResetSymbols(resetZoom);
 
         // Evaluate expression with default symbols
         arithm_double result = m_Expression.value();
@@ -336,7 +354,7 @@ arithm_pair ArithmDialog::EvaluateRange(arithm_pair minMax)
     return result;
 }
 
-void ArithmDialog::ResetSymbols()
+void ArithmDialog::ResetSymbols(bool resetZoom)
 {
     m_F = std::nanl("1");
     m_G = std::nanl("1");
@@ -347,9 +365,11 @@ void ArithmDialog::ResetSymbols()
     m_Y_Min = std::nanl("1");
     m_Y_Max = std::nanl("1");
 
-    // Always use default settings for x_min, x_max unless specified in current expression
-    m_X_Min = m_Settings->value(PLOT_X_MIN_KEY, PLOT_X_MIN_DEFAULT).toFloat();
-    m_X_Max = m_Settings->value(PLOT_X_MAX_KEY, PLOT_X_MAX_DEFAULT).toFloat();
+    if(resetZoom)
+    {
+        m_X_Min = m_Settings->value(PLOT_X_MIN_KEY, PLOT_X_MIN_DEFAULT).toFloat();
+        m_X_Max = m_Settings->value(PLOT_X_MAX_KEY, PLOT_X_MAX_DEFAULT).toFloat();
+    }
 }
 
 void ArithmDialog::ResetPlot()
@@ -386,5 +406,5 @@ void ArithmDialog::ResetPlot()
 
 void ArithmDialog::on_input_editTextChanged(const QString& /* arg1 */)
 {
-    Calculate();
+    Calculate(true);
 }
