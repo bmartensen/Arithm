@@ -62,18 +62,19 @@ ArithmDialog::~ArithmDialog()
 
 void ArithmDialog::wheelEvent(QWheelEvent *event)
 {
-    arithm_double delta = (m_X_Max - m_X_Min) / PLOT_ZOOM_FACTOR;
+    arithm_double newRange;
 
     if(event->delta() < 0)
     {
-        m_X_Min -= delta;
-        m_X_Max += delta;
+        newRange = (m_X_Max - m_X_Min) * PLOT_ZOOM_FACTOR;
     }
     else
     {
-        m_X_Min += delta;
-        m_X_Max -= delta;
+        newRange = (m_X_Max - m_X_Min) / PLOT_ZOOM_FACTOR;
     }
+
+    m_X_Min = (m_X_Min + m_X_Max) / 2.0 - newRange / 2.0;
+    m_X_Max = m_X_Min + newRange;
 
     Calculate(false);
 }
