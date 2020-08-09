@@ -27,7 +27,7 @@ HEADERS += \
 FORMS += \
     arithm_dialog.ui \
 
-VERSION = 1.2
+VERSION = 1.2.1
 
 QMAKE_TARGET_COMPANY = "Martensening.com"
 QMAKE_TARGET_COPYRIGHT = "Martensening.com"
