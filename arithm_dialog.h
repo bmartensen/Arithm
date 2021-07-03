@@ -1,7 +1,9 @@
 #pragma once
 
 #include <QDialog>
-#include <QtCharts>
+#include <QChart>
+#include <QtCharts/QLineSeries>
+#include <QSettings>
 
 #include "exprtk.hpp"
 #include "settings.h"
@@ -36,7 +38,7 @@ private:
     void LoadHistory();
     void SaveHistory();
 
-    void AddPair(QtCharts::QLineSeries *series, const arithm_double x, const arithm_double y, arithm_pair *minMax);
+    void AddPair(QLineSeries *series, const arithm_double x, const arithm_double y, arithm_pair *minMax);
     arithm_pair EvaluateRange(arithm_pair minMax);
 
 protected:

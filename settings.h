@@ -30,4 +30,4 @@
 #define PLOT_SAMPLES_MAX        16384
 
 #define PLOT_THEME_KEY          "Plot/Theme"
-#define PLOT_THEME_DEFAULT      QChart::ChartThemeDark
+#define PLOT_THEME_DEFAULT      QChart::ChartThemeLight

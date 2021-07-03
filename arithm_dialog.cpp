@@ -64,7 +64,7 @@ void ArithmDialog::wheelEvent(QWheelEvent *event)
 {
     arithm_double newRange;
 
-    if(event->delta() < 0)
+    if(event->pixelDelta().y() < 0)
     {
         newRange = (m_X_Max - m_X_Min) * PLOT_ZOOM_FACTOR;
     }
@@ -136,7 +136,7 @@ void ArithmDialog::SaveHistory()
     m_Settings->sync();
 }
 
-void ArithmDialog::AddPair(QtCharts::QLineSeries *series, const arithm_double x, const arithm_double y, arithm_pair *minMax)
+void ArithmDialog::AddPair(QLineSeries *series, const arithm_double x, const arithm_double y, arithm_pair *minMax)
 {
     series->append(x, y);
 
@@ -349,8 +349,8 @@ arithm_pair ArithmDialog::EvaluateRange(arithm_pair minMax)
     }
 
     // Execute rounding (factor = 1.0 for small deltas)
-    result.first = std::floorl(result.first / factor) * factor;
-    result.second = std::ceill(result.second / factor) * factor;
+    result.first = std::floor(result.first / factor) * factor;
+    result.second = std::ceil(result.second / factor) * factor;
 
     return result;
 }

@@ -1,10 +1,9 @@
-QT += core gui charts
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += core gui widgets charts
 
 CONFIG += c++11
 
-win32:QMAKE_CXXFLAGS += -bigobj
+QMAKE_CXXFLAGS += -Ofast -flto
+QMAKE_CXXFLAGS += -BigObj
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
